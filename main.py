@@ -48,8 +48,7 @@ def main():
     arch = args.arch
     output_dir = args.output
 
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
+     logging.basicConfig(level=logging.INFO)
 
     # Check if required commands are available
     if not check_command("apt"):
@@ -64,17 +63,20 @@ def main():
     if not check_command("proot"):
         logging.info("proot is not available, installing it...")
         install_package("proot")
-      # Determine the target architecture
-    if not arch:
-        arch_info = run_command("uname -m")
-        arch = arch_info.strip()
+    install_package("resolv-conf")
+
+    # Remove the old Cloudflare directory if it exists
+    if os.path.exists("cloudflare"):
+        shutil.rmtree("cloudflare")
+
+    # Create a new Cloudflare directory
+    os.makedirs(output_dir, exist_ok=True)
 
     # Set up Cloudflare
-    try:
-        setup_cloudflare(arch, output_dir)
-        logging.info("Cloudflare setup complete.")
-    except subprocess.CalledProcessError as e:
-        logging.error("Error setting up Cloudflare: %s", e)
+    setup_cloudflare(arch, output_dir)
+
+    logging.info("Setup done!")
+    logging.info("Run 'cloudflared --help' to get started.")
 
 if __name__ == "__main__":
     main()
